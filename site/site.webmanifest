@@ -1,0 +1,14 @@
+{
+  "name": "Into Sagittarius A*",
+  "short_name": "Sgr A*",
+  "description": "A real-time ray-traced fall into the black hole at the center of the Milky Way.",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "any",
+  "background_color": "#040507",
+  "theme_color": "#040507",
+  "icons": [
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

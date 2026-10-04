@@ -57,19 +57,24 @@ Or serve the folder with any static server, for example `cd site && python3 -m h
 | `site/og-image.jpg` | 1200×630 link-preview image rendered from the film |
 | `site/favicon.svg`, `site/favicon-32.png`, `site/apple-touch-icon.png` | Site icons |
 | `site/404.html` | Not-found page |
-| `site/robots.txt` | Crawler rules |
+| `site/robots.txt`, `site/sitemap.xml` | Crawler rules and sitemap |
+| `site/site.webmanifest` | Name, colors and icons for "Add to Home Screen" |
 | `wrangler.jsonc` | Cloudflare Workers config (static assets from `site/`) |
 
 ## Controls
 
-Sound is on by default and starts on the first tap, click or key press (browsers block audio
-before that); the speaker button in the playback bar mutes it. Space plays and pauses, the arrow keys skip 5 seconds, and the chapter buttons and timeline jump
+The film opens on a start screen: **Begin the fall** starts the film and the score together
+(browsers only allow sound after a click), and **Watch without sound** starts it muted. The
+speaker button in the playback bar mutes and unmutes. Space plays and pauses, the arrow keys skip 5 seconds, and the chapter buttons and timeline jump
 around the film. It respects `prefers-reduced-motion` by starting paused.
 
-## Custom domain and link previews
+## SEO
 
-The link-preview tags use relative image paths so the site works on any domain. Once you have a
-final URL, add `<link rel="canonical">` and an `og:url` tag, and make the `og:image` and
-`twitter:image` URLs absolute, so every chat app and social network picks up the preview image.
+The site lives at https://blackhole.jpmadrigal.dev/. `index.html` has the title, description,
+canonical URL, Open Graph and Twitter card tags with absolute image URLs, and schema.org JSON-LD
+(website, author, and the film as a learning resource about Sagittarius A*). A visually hidden
+outline of all 12 chapters gives search engines and screen readers the film's full text.
+`sitemap.xml`, `robots.txt` and `site.webmanifest` are in `site/`. If the domain changes, update
+the URLs in those files and in the `<head>` of `index.html`.
 
 Made by JP Madrigal — https://www.jpmadrigal.dev
