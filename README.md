@@ -53,6 +53,7 @@ Or serve the folder with any static server, for example `cd site && python3 -m h
 | File | What it is |
 | --- | --- |
 | `site/index.html` | The whole film: markup, styles, the ray-tracing shader and playback controls |
+| `site/score.mp3` | Original ambient score (2:30, 128 kbps), synthesized for the film and kept in sync with playback |
 | `site/og-image.jpg` | 1200×630 link-preview image rendered from the film |
 | `site/favicon.svg`, `site/favicon-32.png`, `site/apple-touch-icon.png` | Site icons |
 | `site/404.html` | Not-found page |
@@ -61,7 +62,8 @@ Or serve the folder with any static server, for example `cd site && python3 -m h
 
 ## Controls
 
-Space plays and pauses, the arrow keys skip 5 seconds, and the chapter buttons and timeline jump
+Sound is on by default and starts on the first tap, click or key press (browsers block audio
+before that); the speaker button in the playback bar mutes it. Space plays and pauses, the arrow keys skip 5 seconds, and the chapter buttons and timeline jump
 around the film. It respects `prefers-reduced-motion` by starting paused.
 
 ## Custom domain and link previews
