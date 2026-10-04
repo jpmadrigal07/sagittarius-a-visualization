@@ -1,0 +1,13 @@
+{
+  "name": "sagittarius-a-visualization",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Into Sagittarius A*: a real-time ray-traced fall into the black hole at the center of the Milky Way, deployed as a static site on Cloudflare Workers.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  }
+}

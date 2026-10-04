@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Into Sagittarius A*: A Ray-Traced Fall Into a Black Hole</title>
+<meta name="description" content="Fall into Sagittarius A*, the black hole at the center of the Milky Way, in a real-time ray-traced film: bent light, the photon sphere, the event horizon, spaghettification, the singularity and what might lie beyond.">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="JP Madrigal">
+<meta name="theme-color" content="#040507">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Into Sagittarius A*">
+<meta property="og:title" content="Into Sagittarius A*: A Ray-Traced Fall Into a Black Hole">
+<meta property="og:description" content="Fall into Sagittarius A*, the black hole at the center of the Milky Way, in a real-time ray-traced film: bent light, the photon sphere, the event horizon, spaghettification, the singularity and what might lie beyond.">
+<meta property="og:image" content="og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ray-traced view of Sagittarius A* with its glowing accretion disk bent over and under the black hole by gravity">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Into Sagittarius A*: A Ray-Traced Fall Into a Black Hole">
+<meta name="twitter:description" content="Fall into Sagittarius A*, the black hole at the center of the Milky Way, in a real-time ray-traced film: bent light, the photon sphere, the event horizon, spaghettification, the singularity and what might lie beyond.">
+<meta name="twitter:image" content="og-image.jpg">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "CreativeWork",
+ "name": "Into Sagittarius A*",
+ "headline": "Into Sagittarius A*: A Ray-Traced Fall Into a Black Hole",
+ "description": "Fall into Sagittarius A*, the black hole at the center of the Milky Way, in a real-time ray-traced film: bent light, the photon sphere, the event horizon, spaghettification, the singularity and what might lie beyond.",
+ "inLanguage": "en",
+ "genre": [
+  "Science visualization",
+  "Astronomy"
+ ],
+ "about": {
+  "@type": "Thing",
+  "name": "Sagittarius A*",
+  "sameAs": "https://en.wikipedia.org/wiki/Sagittarius_A*"
+ },
+ "author": {
+  "@type": "Person",
+  "name": "JP Madrigal",
+  "url": "https://www.jpmadrigal.dev"
+ },
+ "image": "og-image.jpg"
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: full-bleed live render; narration bottom-left, instrument readouts top-right, transport bar along the bottom edge. Single dark look by choice. */
+:root {
+  --void: #040507;
+  --ink: #ece6da;
+  --dim: #8e919c;
+  --line: rgba(236, 230, 218, 0.16);
+  --ember: #f2a560;
+  --glass: rgba(6, 7, 10, 0.5);
+  --f-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; margin: 0; }
+body { background: var(--void); color: var(--ink); font-family: var(--f-body); overflow: hidden; }
+canvas#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: block; background: var(--void); }
+
+.hud { position: fixed; inset: 0; pointer-events: none;
+  padding: calc(env(safe-area-inset-top, 0px) + 20px) 24px calc(env(safe-area-inset-bottom, 0px) + 16px);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 1fr auto auto; gap: 16px 24px; }
+.hud > * { pointer-events: auto; }
+
+.brand { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; gap: 2px; }
+.brand .mark { font-family: var(--f-display); font-size: 22px; letter-spacing: 0.01em; }
+.brand .sub { font-family: var(--f-data); font-size: 11px; color: var(--dim); letter-spacing: 0.06em; text-transform: uppercase; }
+
+.readouts { grid-column: 2; grid-row: 1 / 3; align-self: start; display: flex; flex-direction: column; gap: 14px;
+  min-width: 210px; padding: 14px 16px; background: var(--glass); border: 1px solid var(--line); border-radius: 4px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.ro { display: flex; flex-direction: column; gap: 2px; }
+.ro .k { font-family: var(--f-data); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.ro .v { font-family: var(--f-data); font-size: 20px; font-variant-numeric: tabular-nums; color: var(--ink); }
+.ro .v small { font-size: 12px; color: var(--dim); margin-left: 4px; }
+.ro .u { font-family: var(--f-data); font-size: 11px; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+.story { grid-column: 1 / -1; grid-row: 3; max-width: 34rem; display: flex; flex-direction: column; gap: 8px; }
+.story.enter { animation: enter 0.7s ease both; }
+@keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.chap { font-family: var(--f-data); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ember); }
+.story h2 { margin: 0; font-family: var(--f-display); font-weight: 400; font-style: italic; font-size: clamp(34px, 5vw, 56px);
+  line-height: 1; text-wrap: balance; text-shadow: 0 2px 24px rgba(0,0,0,0.8); }
+.story p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink); max-width: 62ch;
+  text-shadow: 0 1px 12px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9); }
+
+.bar { grid-column: 1 / -1; grid-row: 4; display: flex; align-items: center; gap: 10px; }
+.bar button { appearance: none; border: 1px solid var(--line); background: var(--glass); color: var(--ink);
+  width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; flex: none; }
+.bar button:hover { border-color: var(--ember); }
+.bar button:focus-visible, .end button:focus-visible, #scrub:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+.bar button svg { width: 14px; height: 14px; fill: var(--ink); }
+.track { position: relative; flex: 1; min-width: 0; height: 38px; display: flex; align-items: center; }
+.ticks { position: absolute; left: 0; right: 0; top: 50%; height: 0; pointer-events: none; }
+.ticks i { position: absolute; top: -7px; width: 1px; height: 14px; background: var(--dim); opacity: 0.7; }
+.ticks i.spec { background: var(--ember); }
+.readouts.off .v { color: var(--dim); }
+#scrub { -webkit-appearance: none; appearance: none; width: 100%; height: 2px; background: var(--line); margin: 0; cursor: pointer; position: relative; }
+#scrub::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--ember); border: 0; }
+#scrub::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--ember); border: 0; }
+.time { font-family: var(--f-data); font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; flex: none; min-width: 92px; text-align: right; }
+
+[hidden] { display: none !important; }
+.vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.end .made { font-family: var(--f-data); font-size: 12px; color: var(--dim); }
+.end .made a { color: var(--ink); }
+.end { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; background: var(--void); }
+.end .inner { max-width: 30rem; display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
+.end h2 { margin: 0; font-family: var(--f-display); font-style: italic; font-weight: 400; font-size: clamp(30px, 5vw, 46px); line-height: 1.05; text-wrap: balance; }
+.end p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--dim); }
+.end button { appearance: none; border: 1px solid var(--ember); background: transparent; color: var(--ink);
+  font-family: var(--f-data); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; padding: 10px 18px; border-radius: 999px; cursor: pointer; }
+.end button:hover { background: rgba(242, 165, 96, 0.12); }
+.fail { position: fixed; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--dim); }
+
+@media (max-width: 640px) {
+  .hud { grid-template-columns: minmax(0, 1fr); padding-left: 16px; padding-right: 16px; gap: 12px; }
+  .readouts { grid-column: 1; grid-row: 2; flex-direction: row; justify-content: space-between; min-width: 0; padding: 10px 12px; gap: 10px; }
+  .ro .v { font-size: 14px; }
+  .ro .k { font-size: 9px; }
+  .ro .u { display: none; }
+  .story h2 { font-size: 32px; }
+  .story p { font-size: 13.5px; }
+  .time { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .story.enter { animation: none; } }
+</style>
+</head>
+<body>
+
+<article class="vh" aria-label="About this film">
+  <h1>Into Sagittarius A*: A Ray-Traced Fall Into a Black Hole</h1>
+  <p>Fall into Sagittarius A*, the black hole at the center of the Milky Way, in a real-time ray-traced film: bent light, the photon sphere, the event horizon, spaghettification, the singularity and what might lie beyond. Outside the event horizon, light paths are traced through the curved space of a non-spinning (Schwarzschild) black hole; the view inside the horizon and the second act are interpretations.</p>
+  <ol>
+      <li><h3>Approach</h3><p>Sagittarius A*, the black hole at the center of our galaxy. It holds 4.3 million Suns of mass inside a horizon 25 million km wide, about 18 times the width of the Sun. We&#x27;ve given it a bright disk of hot gas so you can watch what gravity does to light.</p></li>
+      <li><h3>Bent light</h3><p>The arc above the black hole is the far side of the disk. Its light climbs over the top of the hole to reach us; a fainter image sneaks under the bottom. One side is brighter because that gas is rushing toward us at about half the speed of light.</p></li>
+      <li><h3>Last stable orbit</h3><p>At 3 Schwarzschild radii, orbits stop being stable. Any gas that drifts inside this line spirals down in a few turns. That&#x27;s why the disk has a sharp inner edge.</p></li>
+      <li><h3>Photon sphere</h3><p>At 1.5 radii, light itself can circle the black hole. Looking sideways, the bright ring cuts the sky in two. Below it, the darkness. Above it, the whole universe, squeezed and smeared.</p></li>
+      <li><h3>Event horizon</h3><p>There&#x27;s no wall here and nothing to feel. For a black hole this big, the tides are still gentler than Earth&#x27;s. But once you cross, every path into the future leads inward. A watcher far away never sees you cross: your image slows, reddens and fades.</p></li>
+      <li><h3>Inside</h3><p>Space and time trade roles. The singularity isn&#x27;t a place in front of you anymore. It&#x27;s a moment in your future, as unavoidable as tomorrow. From the horizon you have about 28 seconds on your own clock. Behind you, the outside universe shrinks to a bright window.</p></li>
+      <li><h3>Spaghettification</h3><p>The pull on your feet grows much faster than the pull on your head. Here that only turns deadly in the last 0.03 seconds, about 130,000 km from the center. Near a 10-solar-mass black hole, it would have torn you apart 1,700 km out, far outside its 30 km horizon.</p></li>
+      <li><h3>Singularity</h3><p>General relativity says density becomes infinite here, which really means the theory has stopped working. Describing what&#x27;s actually here needs a theory of quantum gravity. Nobody has one yet.</p></li>
+      <li><h3>Past the edge</h3><p>Everything from here on is speculation. General relativity can&#x27;t say what happens at the singularity, so physicists have proposed several answers. None has been tested. Here are three of the most serious.</p></li>
+      <li><h3>A bounce</h3><p>In loop quantum gravity, space has a smallest possible size, so matter can&#x27;t be crushed forever. The collapse bounces, and the black hole turns inside out into a white hole: the time-reverse of a black hole, which nothing can enter and everything leaves. To you the bounce is instant. To the outside universe it could take billions of years.</p></li>
+      <li><h3>A new universe</h3><p>Some physicists go further: the bounce happens beyond our space entirely, and the crushed matter expands into a separate universe with its own big bang. Lee Smolin and Nikodem Popławski have each built versions of this idea. If it&#x27;s right, our own universe could have begun inside a black hole in another one.</p></li>
+      <li><h3>Through the ring</h3><p>Real black holes spin, and in the exact math of a spinning black hole the singularity is a ring, not a point. Miss it and the equations carry you through, into a region where gravity pushes instead of pulls, or out into another universe. Most physicists expect infalling matter would wreck this inner structure, so read it as a map of the math, not a travel guide. We&#x27;ve drawn the ring glowing so you can see it.</p></li>
+  </ol>
+  <p>Made by <a href="https://www.jpmadrigal.dev">JP Madrigal</a>.</p>
+</article>
+
+<canvas id="sky" aria-label="Live ray-traced view of a fall into a black hole"></canvas>
+
+<div class="hud">
+  <header class="brand">
+    <span class="mark">Into Sagittarius A*</span>
+    <span class="sub">Ray-traced live in your browser</span>
+  </header>
+
+  <aside class="readouts" aria-label="Instruments">
+    <div class="ro">
+      <span class="k">Distance to center</span>
+      <span class="v" id="roR">42.0<small>r<sub>s</sub></small></span>
+      <span class="u" id="roKm">533 million km</span>
+    </div>
+    <div class="ro">
+      <span class="k">Your clock left</span>
+      <span class="v" id="roTau">2 h 2 min</span>
+      <span class="u">falling freely from far away</span>
+    </div>
+    <div class="ro">
+      <span class="k">Tidal stretch</span>
+      <span class="v" id="roTide">1.5×10⁻⁹ g</span>
+      <span class="u">head to toe, 2 m body</span>
+    </div>
+  </aside>
+
+  <section class="story" id="story" aria-live="polite">
+    <div class="chap"><span id="chNum">01</span> / <span id="chTotal">12</span><span id="chTag" hidden> · Speculative</span></div>
+    <h2 id="chTitle">Approach</h2>
+    <p id="chText"></p>
+  </section>
+
+  <nav class="bar" aria-label="Playback">
+    <button id="prev" type="button" aria-label="Previous chapter"><svg viewBox="0 0 16 16"><path d="M3 2h2v12H3zM14 2v12L6 8z"/></svg></button>
+    <button id="play" type="button" aria-label="Pause"><svg viewBox="0 0 16 16" id="playIcon"><path d="M3 2h4v12H3zM9 2h4v12H9z"/></svg></button>
+    <button id="next" type="button" aria-label="Next chapter"><svg viewBox="0 0 16 16"><path d="M11 2h2v12h-2zM2 2v12l8-6z"/></svg></button>
+    <div class="track">
+      <div class="ticks" id="ticks"></div>
+      <input id="scrub" type="range" min="0" max="150" step="0.01" value="0" aria-label="Timeline">
+    </div>
+    <span class="time" id="time">0:00 / 2:30</span>
+  </nav>
+</div>
+
+<div class="end" id="end" hidden>
+  <div class="inner">
+    <h2>Nobody knows what's really down there.</h2>
+    <p>Act one follows the real math of a non-spinning black hole. Outside the horizon, every light path is traced through curved space; the glowing disk is simplified and much brighter than Sagittarius A*'s real one, and the view inside the horizon is an interpretation built on the same equations.</p>
+    <p>Act two is speculation: three answers physicists have proposed for what replaces the singularity. There are others. String theory's fuzzballs say there's no inside at all, just a tangled surface of strings where the horizon would be. Firewalls say you'd burn up at the horizon. Black holes are one of the few places where gravity and quantum physics have to meet, which is why physicists keep falling into them on paper.</p>
+    <button id="replay" type="button">Fall again</button>
+    <p class="made">Made by <a href="https://www.jpmadrigal.dev" target="_blank" rel="noopener">JP Madrigal</a></p>
+  </div>
+</div>
+
+<script>
+(() => {
+  const DUR = 150;
+  const SPEC_T = 95; // act two (speculative) starts here
+  const RS_KM = 1.27e7;      // Schwarzschild radius of Sgr A* (4.3 million solar masses)
+  const TAU_COEF = 28.2;     // (2/3)·rs/c in seconds: proper time from r to 0, falling from rest at infinity
+  const TIDE_COEF = 2.283e27; // 2·GM·L for L = 2 m, in SI
+
+  const CHAPTERS = [
+    { t: 0,  title: "Approach",
+      text: "Sagittarius A*, the black hole at the center of our galaxy. It holds 4.3 million Suns of mass inside a horizon 25 million km wide, about 18 times the width of the Sun. We've given it a bright disk of hot gas so you can watch what gravity does to light." },
+    { t: 10, title: "Bent light",
+      text: "The arc above the black hole is the far side of the disk. Its light climbs over the top of the hole to reach us; a fainter image sneaks under the bottom. One side is brighter because that gas is rushing toward us at about half the speed of light." },
+    { t: 30, title: "Last stable orbit",
+      text: "At 3 Schwarzschild radii, orbits stop being stable. Any gas that drifts inside this line spirals down in a few turns. That's why the disk has a sharp inner edge." },
+    { t: 44, title: "Photon sphere",
+      text: "At 1.5 radii, light itself can circle the black hole. Looking sideways, the bright ring cuts the sky in two. Below it, the darkness. Above it, the whole universe, squeezed and smeared." },
+    { t: 54, title: "Event horizon",
+      text: "There's no wall here and nothing to feel. For a black hole this big, the tides are still gentler than Earth's. But once you cross, every path into the future leads inward. A watcher far away never sees you cross: your image slows, reddens and fades." },
+    { t: 63, title: "Inside",
+      text: "Space and time trade roles. The singularity isn't a place in front of you anymore. It's a moment in your future, as unavoidable as tomorrow. From the horizon you have about 28 seconds on your own clock. Behind you, the outside universe shrinks to a bright window." },
+    { t: 76, title: "Spaghettification",
+      text: "The pull on your feet grows much faster than the pull on your head. Here that only turns deadly in the last 0.03 seconds, about 130,000 km from the center. Near a 10-solar-mass black hole, it would have torn you apart 1,700 km out, far outside its 30 km horizon." },
+    { t: 88, title: "Singularity",
+      text: "General relativity says density becomes infinite here, which really means the theory has stopped working. Describing what's actually here needs a theory of quantum gravity. Nobody has one yet." },
+    { t: 95, title: "Past the edge",
+      text: "Everything from here on is speculation. General relativity can't say what happens at the singularity, so physicists have proposed several answers. None has been tested. Here are three of the most serious." },
+    { t: 101, title: "A bounce",
+      text: "In loop quantum gravity, space has a smallest possible size, so matter can't be crushed forever. The collapse bounces, and the black hole turns inside out into a white hole: the time-reverse of a black hole, which nothing can enter and everything leaves. To you the bounce is instant. To the outside universe it could take billions of years." },
+    { t: 116, title: "A new universe",
+      text: "Some physicists go further: the bounce happens beyond our space entirely, and the crushed matter expands into a separate universe with its own big bang. Lee Smolin and Nikodem Popławski have each built versions of this idea. If it's right, our own universe could have begun inside a black hole in another one." },
+    { t: 131, title: "Through the ring",
+      text: "Real black holes spin, and in the exact math of a spinning black hole the singularity is a ring, not a point. Miss it and the equations carry you through, into a region where gravity pushes instead of pulls, or out into another universe. Most physicists expect infalling matter would wreck this inner structure, so read it as a map of the math, not a travel guide. We've drawn the ring glowing so you can see it." },
+  ];
+
+  // Camera keyframes: r in Schwarzschild radii, inc = degrees above disk, look 0 = at the hole, 0.5 = sideways, 1 = back out
+  const K = [
+    { t: 0,  r: 42,    inc: 6,  look: 0,    fov: 52, tidal: 0 },
+    { t: 14, r: 20,    inc: 7,  look: 0,    fov: 55, tidal: 0 },
+    { t: 28, r: 8.5,   inc: 10, look: 0.04, fov: 62, tidal: 0 },
+    { t: 40, r: 3.2,   inc: 8,  look: 0.3,  fov: 78, tidal: 0 },
+    { t: 52, r: 1.5,   inc: 5,  look: 0.5,  fov: 85, tidal: 0 },
+    { t: 62, r: 1.0,   inc: 5,  look: 0.82, fov: 85, tidal: 0 },
+    { t: 76, r: 0.3,   inc: 5,  look: 1.0,  fov: 85, tidal: 0 },
+    { t: 86, r: 0.04,  inc: 5,  look: 1.0,  fov: 85, tidal: 0.6 },
+    { t: 94, r: 0.003, inc: 5,  look: 1.0,  fov: 85, tidal: 1.0 },
+    { t: 101, r: 0.003, inc: 5,  look: 1.0,  fov: 85, tidal: 1.0 },
+  ];
+  // Act two, white hole: fly back out, then turn to look at it
+  const KW = [
+    { t: 101, r: 0.004, inc: 5,  look: 1.0,  fov: 85, tidal: 0 },
+    { t: 106, r: 0.5,   inc: 5,  look: 1.0,  fov: 85, tidal: 0 },
+    { t: 110, r: 1.6,   inc: 6,  look: 0.7,  fov: 85, tidal: 0 },
+    { t: 113, r: 5,     inc: 8,  look: 0.0,  fov: 70, tidal: 0 },
+    { t: 116, r: 9,     inc: 8,  look: 0.0,  fov: 60, tidal: 0 },
+  ];
+
+  const VERT = `attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+  const FRAG = `
+precision highp float;
+uniform vec2 uRes;
+uniform float uTime, uFov, uCamR, uTidal, uFlash, uFade, uBeta, uMode, uU;
+uniform vec3 uCamPos, uRight, uUp, uFwd;
+
+float hash13(vec3 p){ p = fract(p * 0.1031); p += dot(p, p.zyx + 31.32); return fract((p.x + p.y) * p.z); }
+float vnoise(vec3 p){
+  vec3 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(mix(hash13(i), hash13(i + vec3(1,0,0)), f.x), mix(hash13(i + vec3(0,1,0)), hash13(i + vec3(1,1,0)), f.x), f.y),
+             mix(mix(hash13(i + vec3(0,0,1)), hash13(i + vec3(1,0,1)), f.x), mix(hash13(i + vec3(0,1,1)), hash13(i + vec3(1,1,1)), f.x), f.y), f.z);
+}
+float fbm(vec3 p){ float a = 0.5, s = 0.0; for (int i = 0; i < 4; i++){ s += a * vnoise(p); p = p * 2.03 + vec3(1.7, 9.2, 3.1); a *= 0.5; } return s; }
+
+vec3 tempColor(float t){
+  t = clamp(t, 0.0, 2.5);
+  vec3 c0 = vec3(0.55, 0.06, 0.01), c1 = vec3(1.0, 0.32, 0.06), c2 = vec3(1.0, 0.72, 0.42), c3 = vec3(0.95, 0.93, 1.0), c4 = vec3(0.7, 0.8, 1.0);
+  if (t < 0.5) return mix(c0, c1, t / 0.5);
+  if (t < 1.0) return mix(c1, c2, (t - 0.5) / 0.5);
+  if (t < 1.6) return mix(c2, c3, (t - 1.0) / 0.6);
+  return mix(c3, c4, (t - 1.6) / 0.9);
+}
+
+vec3 sky(vec3 d){
+  d = normalize(d);
+  vec3 col = vec3(0.0);
+  vec3 n = normalize(vec3(0.35, 1.0, 0.25));
+  float b = dot(d, n);
+  float band = exp(-b * b * 14.0);
+  float g = fbm(d * 3.5);
+  float dust = fbm(d * 9.0 + 3.0);
+  col += mix(vec3(0.33, 0.32, 0.45), vec3(0.78, 0.63, 0.5), g) * band * (0.06 + 0.3 * g * g) * (1.0 - 0.6 * smoothstep(0.45, 0.7, dust) * band);
+  for (int l = 0; l < 2; l++){
+    float sc = l == 0 ? 70.0 : 150.0;
+    vec3 p = d * sc; vec3 c = floor(p); vec3 f = fract(p);
+    float h = hash13(c + float(l) * 17.0);
+    if (h > 0.8){
+      vec3 o = vec3(hash13(c + 1.3), hash13(c + 7.1), hash13(c + 4.9)) * 0.6 + 0.2;
+      float dd = length(f - o);
+      float br = pow((h - 0.8) / 0.2, 3.0) * (l == 0 ? 2.6 : 1.1);
+      vec3 sc3 = mix(vec3(1.0, 0.76, 0.56), vec3(0.72, 0.83, 1.0), hash13(c + 2.2));
+      col += sc3 * br * exp(-dd * dd * (l == 0 ? 170.0 : 240.0));
+    }
+  }
+  return col;
+}
+
+vec4 disk(vec3 p, vec3 dir){
+  float r = length(p.xz);
+  if (r < 3.0 || r > 15.0) return vec4(0.0);
+  float a = atan(p.z, p.x);
+  float w = sqrt(0.5 / (r * r * r));
+  float a2 = a - uTime * w * 6.0;
+  float n = fbm(vec3(r * 2.2, cos(a2) * 1.8, sin(a2) * 1.8));
+  float n2 = vnoise(vec3(r * 9.0, cos(a2) * 5.0, sin(a2) * 5.0));
+  float dens = (0.25 + 1.1 * n * n + 0.25 * n2) * smoothstep(3.0, 3.35, r) * smoothstep(15.0, 8.0, r);
+  float T = pow(3.0 / r, 0.9);
+  vec3 vdir = normalize(vec3(-p.z, 0.0, p.x));
+  float beta = min(sqrt(0.5 / max(r - 1.0, 0.01)), 0.7);
+  float gam = inversesqrt(1.0 - beta * beta);
+  float g = 1.0 / (gam * (1.0 - beta * dot(vdir, -normalize(dir))));
+  g *= sqrt(1.0 - 1.0 / r);
+  vec3 c = tempColor(T * g * 1.3) * pow(g, 3.0) * T * 3.2;
+  float alpha = clamp(dens * 0.75, 0.0, 0.92);
+  return vec4(c, alpha);
+}
+
+vec3 skyB(vec3 d){
+  return sky(vec3(d.z, -d.x, d.y)) * vec3(0.55, 1.0, 1.6) + vec3(0.02, 0.006, 0.05);
+}
+
+// Black hole (mode 0) or white hole (mode 1) traced through Schwarzschild light paths
+vec3 traceHole(vec3 dir){
+  bool white = uMode > 0.5;
+  vec3 pos = uCamPos;
+  vec3 hv = cross(pos, dir);
+  float h2 = dot(hv, hv);
+  vec3 col = vec3(0.0);
+  float trans = 1.0;
+  float killR = uCamR >= 1.0 ? 1.0 : uCamR * 0.3;
+  bool done = false;
+  float skyGain = 1.0 + 2.0 * clamp(1.0 - uCamR, 0.0, 1.0);
+
+  for (int i = 0; i < 340; i++){
+    float r2 = dot(pos, pos);
+    float r = sqrt(r2);
+    if (r < killR){
+      if (white){
+        float n = fbm(normalize(pos) * 3.0 + vec3(0.0, uTime * 0.4, 0.0));
+        col += trans * vec3(0.75, 0.87, 1.0) * (2.2 + 2.5 * n * n);
+      }
+      done = true; break;
+    }
+    if (r > 70.0 && dot(pos, dir) > 0.0){ col += trans * sky(dir) * skyGain; done = true; break; }
+    float dt = clamp(0.07 * r, 0.00005, 2.5);
+    vec3 acc = -1.5 * h2 * pos / (r2 * r2 * r);
+    dir += acc * dt;
+    vec3 np = pos + dir * dt;
+    if (!white && pos.y * np.y < 0.0){
+      float t = pos.y / (pos.y - np.y);
+      vec4 d = disk(mix(pos, np, t), dir);
+      col += trans * d.rgb * d.a;
+      trans *= 1.0 - d.a;
+      if (trans < 0.02){ done = true; break; }
+    }
+    pos = np;
+  }
+  if (!done && length(pos) > 2.0) col += trans * sky(dir) * skyGain;
+  return col;
+}
+
+// A universe cooling from its own big bang (mode 2), uU = 0..1
+vec3 universe(vec3 d){
+  float temp = exp(-uU * 7.0);
+  float fl = fbm(d * 6.0 + vec3(uU * 2.0));
+  vec3 hot = tempColor(0.25 + 2.2 * temp) * (6.0 * temp * temp + 0.015) * (0.75 + 0.6 * fl);
+  float form = smoothstep(0.35, 0.85, uU);
+  float w = fbm(d * 4.0 + 7.0);
+  vec3 web = vec3(0.55, 0.45, 0.75) * pow(w, 3.0) * 0.9 * form;
+  return hot + web + sky(d) * form;
+}
+
+// Flat space with a ring singularity of radius 1.5 in the z = 0 plane (mode 3)
+vec3 ringScene(vec3 ro, vec3 rd){
+  float R = 1.5;
+  bool camB = ro.z > 0.0;
+  bool crossed = false;
+  vec3 hit = vec3(0.0);
+  if (abs(rd.z) > 1e-4){
+    float tp = -ro.z / rd.z;
+    if (tp > 0.0){ hit = ro + rd * tp; crossed = length(hit.xy) < R; }
+  }
+  vec3 d = rd;
+  if (crossed){
+    float k = 1.0 - length(hit.xy) / R;
+    float ang = 2.2 * k * k;
+    float c = cos(ang), s = sin(ang);
+    d = vec3(c * d.x - s * d.y, s * d.x + c * d.y, d.z);
+  }
+  bool inB = camB != crossed;
+  vec3 col = inB ? skyB(d) : sky(d);
+  float glow = 0.0;
+  float t = 0.0;
+  for (int i = 0; i < 64; i++){
+    vec3 p = ro + rd * t;
+    float dd = length(vec2(length(p.xy) - R, p.z));
+    float st = max(0.02, dd * 0.4);
+    glow += st * 0.015 / (dd * dd + 0.0015);
+    t += st;
+    if (t > 30.0) break;
+  }
+  float hue = 0.5 + 0.5 * sin(atan(ro.y + rd.y, ro.x + rd.x) * 3.0 + uTime * 0.8);
+  col += mix(vec3(1.0, 0.68, 0.38), vec3(0.7, 0.82, 1.0), hue) * glow;
+  return col;
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
+  vec2 suv = uv;
+  suv.y /= (1.0 + 6.0 * uTidal);
+  suv.x *= (1.0 + 1.2 * uTidal);
+  float f = tan(uFov * 0.5) * 2.0;
+  vec3 dir = normalize(uFwd + (suv.x * uRight + suv.y * uUp) * f);
+
+  vec3 col;
+  if (uMode < 1.5){
+    // Aberration for an observer moving radially: what they see maps to a different static-frame angle.
+    vec3 m = -normalize(uCamPos);
+    float cp = dot(dir, m);
+    float cs = (cp - uBeta) / (1.0 - uBeta * cp);
+    vec3 perp = dir - cp * m;
+    float pl = length(perp);
+    if (pl > 1e-5) dir = normalize(cs * m + sqrt(max(0.0, 1.0 - cs * cs)) * perp / pl);
+    col = traceHole(dir);
+  } else if (uMode < 2.5){
+    col = universe(dir);
+  } else {
+    col = ringScene(uCamPos, dir);
+  }
+
+  col = 1.0 - exp(-col * 1.1);
+  col = pow(col, vec3(1.0 / 2.2));
+  col *= 1.0 - 0.28 * dot(uv, uv);
+  col = mix(col, vec3(1.0, 0.98, 0.95), uFlash);
+  col *= 1.0 - uFade;
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+  const $ = (id) => document.getElementById(id);
+  const canvas = $("sky");
+  const gl = canvas.getContext("webgl", { antialias: false, alpha: false, preserveDrawingBuffer: false });
+
+  function fail(msg) {
+    const d = document.createElement("div");
+    d.className = "fail";
+    d.textContent = msg;
+    document.body.appendChild(d);
+  }
+  if (!gl) { fail("This film needs WebGL, which your browser has turned off."); return; }
+
+  function shader(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); return null; }
+    return s;
+  }
+  const vs = shader(gl.VERTEX_SHADER, VERT), fs = shader(gl.FRAGMENT_SHADER, FRAG);
+  if (!vs || !fs) { fail("Your graphics card couldn't compile the ray tracer."); return; }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, "p");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const U = {};
+  ["uRes", "uTime", "uFov", "uCamR", "uTidal", "uFlash", "uFade", "uBeta", "uMode", "uU", "uCamPos", "uRight", "uUp", "uFwd"]
+    .forEach((n) => (U[n] = gl.getUniformLocation(prog, n)));
+
+  // ---------- timeline ----------
+  const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+  const smooth = (u) => u * u * (3 - 2 * u);
+  const sstep = (a, b, x) => smooth(clamp((x - a) / (b - a), 0, 1));
+
+  function camAt(K, t) {
+    t = clamp(t, K[0].t, K[K.length - 1].t);
+    let i = 0;
+    while (i < K.length - 2 && t >= K[i + 1].t) i++;
+    const a = K[i], b = K[i + 1];
+    const u = clamp((t - a.t) / (b.t - a.t), 0, 1), s = smooth(u);
+    const r = Math.exp(Math.log(a.r) + (Math.log(b.r) - Math.log(a.r)) * u);
+    const lerp = (k) => a[k] + (b[k] - a[k]) * s;
+    return { r, inc: lerp("inc"), look: lerp("look"), fov: lerp("fov"), tidal: lerp("tidal") };
+  }
+
+  function norm(v) { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; }
+  function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+
+  // ---------- quality ----------
+  let q = 0.55;
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function resize() {
+    const w = Math.max(1, Math.floor(innerWidth * dpr * q));
+    const h = Math.max(1, Math.floor(innerHeight * dpr * q));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    dirty = true;
+  }
+
+  // ---------- state ----------
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let t = 0, playing = !reduced, dirty = true, last = performance.now();
+  let frameAvg = 16, frames = 0, chapterIdx = -1;
+
+  function frame() {
+    // Returns camera + effects for the current time, per act segment
+    if (t < 101) {
+      const c = camAt(K, t);
+      return { mode: 0, ...c, phi: 1.2 + t * 0.012, beta: 0.6 * Math.min(1, Math.sqrt(1 / c.r)),
+        flash: sstep(90.5, 94, t), fade: sstep(95.5, 100, t), u: 0 };
+    }
+    if (t < 116) {
+      const c = camAt(KW, t);
+      return { mode: 1, ...c, phi: 2.4 + (t - 101) * 0.02, beta: -0.6 * Math.min(1, Math.sqrt(1 / c.r)),
+        flash: sstep(113.5, 116, t), fade: 1 - sstep(101, 103.5, t), u: 0 };
+    }
+    if (t < 131) {
+      const u = (t - 116) / 15;
+      return { mode: 2, r: 1, inc: 0, look: 0, fov: 100 - 70 * smooth(u), tidal: 0, phi: 0.3 * u, beta: 0,
+        flash: 0, fade: sstep(129, 131, t), u };
+    }
+    return { mode: 3, r: 1, inc: 0, look: sstep(141.5, 146.5, t), fov: 70, tidal: 0, phi: 0, beta: 0,
+      z: -7 + 10.5 * sstep(131, 143, t), flash: 0, fade: Math.max(1 - sstep(131, 132.5, t), sstep(147.5, 149.5, t)), u: 0 };
+  }
+
+  function render() {
+    const c = frame();
+    let pos, fwd;
+    if (c.mode === 3) {
+      pos = [0.3, 0.18, c.z];
+      const a = c.look * Math.PI;
+      fwd = norm([Math.sin(a) * 0.9, 0.0, Math.cos(a)]);
+    } else if (c.mode === 2) {
+      pos = [0, 0, 1];
+      fwd = norm([Math.sin(c.phi), 0.15, Math.cos(c.phi)]);
+    } else {
+      const inc = (c.inc * Math.PI) / 180;
+      pos = [c.r * Math.cos(inc) * Math.cos(c.phi), c.r * Math.sin(inc), c.r * Math.cos(inc) * Math.sin(c.phi)];
+      const inward = norm([-pos[0], -pos[1], -pos[2]]);
+      const side = [-Math.sin(c.phi), 0, Math.cos(c.phi)];
+      const la = c.look * Math.PI;
+      fwd = norm([inward[0] * Math.cos(la) + side[0] * Math.sin(la), inward[1] * Math.cos(la), inward[2] * Math.cos(la) + side[2] * Math.sin(la)]);
+    }
+    const right = norm(cross(fwd, [0, 1, 0]));
+    const up = cross(right, fwd);
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.uniform2f(U.uRes, canvas.width, canvas.height);
+    gl.uniform1f(U.uTime, t);
+    gl.uniform1f(U.uFov, (c.fov * Math.PI) / 180);
+    gl.uniform1f(U.uCamR, c.r);
+    gl.uniform1f(U.uTidal, c.tidal);
+    gl.uniform1f(U.uFlash, c.flash);
+    gl.uniform1f(U.uFade, c.fade);
+    gl.uniform1f(U.uBeta, c.beta);
+    gl.uniform1f(U.uMode, c.mode);
+    gl.uniform1f(U.uU, c.u);
+    gl.uniform3fv(U.uCamPos, pos);
+    gl.uniform3fv(U.uRight, right);
+    gl.uniform3fv(U.uUp, up);
+    gl.uniform3fv(U.uFwd, fwd);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    updateHud(c.mode === 0 ? c.r : null);
+  }
+
+  // ---------- HUD ----------
+  const SUP = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
+  function sci(x) {
+    const e = Math.floor(Math.log10(x));
+    const m = x / Math.pow(10, e);
+    return `${m.toFixed(1)}×10${String(e).split("").map((ch) => SUP[ch]).join("")}`;
+  }
+  function fmtR(r) { return r >= 10 ? r.toFixed(1) : r >= 1 ? r.toFixed(2) : r >= 0.01 ? r.toFixed(3) : r.toFixed(4); }
+  function fmtKm(r) {
+    const km = r * RS_KM;
+    if (km >= 1e6) return `${(km / 1e6).toFixed(km >= 1e8 ? 0 : 1)} million km`;
+    return `${Math.round(km).toLocaleString("en-US")} km`;
+  }
+  function fmtTau(r) {
+    const s = TAU_COEF * Math.pow(r, 1.5);
+    if (s >= 3600) return `${Math.floor(s / 3600)} h ${Math.floor((s % 3600) / 60)} min`;
+    if (s >= 60) return `${Math.floor(s / 60)} min ${Math.floor(s % 60)} s`;
+    if (s >= 1) return `${s.toFixed(1)} s`;
+    return `${(s * 1000).toFixed(1)} ms`;
+  }
+  function fmtTide(r) {
+    const R = r * RS_KM * 1000;
+    const g = TIDE_COEF / (R * R * R) / 9.81;
+    return g >= 0.01 && g < 1e5 ? `${g.toPrecision(3)} g` : `${sci(g)} g`;
+  }
+  function fmtClock(s) { s = Math.floor(s); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }
+
+  const roR = $("roR"), roKm = $("roKm"), roTau = $("roTau"), roTide = $("roTide");
+  const chTag = $("chTag");
+  $("chTotal").textContent = String(CHAPTERS.length).padStart(2, "0");
+  const story = $("story"), chNum = $("chNum"), chTitle = $("chTitle"), chText = $("chText");
+  const scrub = $("scrub"), timeEl = $("time"), endEl = $("end");
+
+  const readouts = document.querySelector(".readouts");
+  function updateHud(r) {
+    const off = t >= SPEC_T || r === null;
+    readouts.classList.toggle("off", off);
+    if (off) {
+      roR.textContent = "—"; roKm.textContent = "beyond known physics";
+      roTau.textContent = "—"; roTide.textContent = "—";
+    } else {
+      roR.innerHTML = `${fmtR(r)}<small>r<sub>s</sub></small>`;
+      roKm.textContent = fmtKm(r);
+      roTau.textContent = fmtTau(r);
+      roTide.textContent = fmtTide(r);
+    }
+    if (document.activeElement !== scrub) scrub.value = t;
+    timeEl.textContent = `${fmtClock(t)} / ${fmtClock(DUR)}`;
+    let idx = 0;
+    for (let i = 0; i < CHAPTERS.length; i++) if (t >= CHAPTERS[i].t) idx = i;
+    if (idx !== chapterIdx) setChapter(idx);
+    endEl.hidden = t < 149.5;
+  }
+  function setChapter(idx) {
+    const first = chapterIdx === -1;
+    chapterIdx = idx;
+    const ch = CHAPTERS[idx];
+    chNum.textContent = String(idx + 1).padStart(2, "0");
+    chTag.hidden = ch.t < SPEC_T;
+    chTitle.textContent = ch.title;
+    chText.textContent = ch.text;
+    if (first) return;
+    story.classList.remove("enter");
+    void story.offsetWidth;
+    story.classList.add("enter");
+  }
+
+  const ticks = $("ticks");
+  CHAPTERS.forEach((ch, i) => {
+    if (i === 0) return;
+    const el = document.createElement("i");
+    el.style.left = `${(ch.t / DUR) * 100}%`;
+    if (ch.t >= SPEC_T) el.className = "spec";
+    ticks.appendChild(el);
+  });
+
+  // ---------- controls ----------
+  const playBtn = $("play"), playIcon = $("playIcon");
+  function updatePlay() {
+    playBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
+    playIcon.innerHTML = playing ? '<path d="M3 2h4v12H3zM9 2h4v12H9z"/>' : '<path d="M4 2l10 6-10 6z"/>';
+  }
+  function togglePlay() {
+    if (!playing && t >= DUR) t = 0;
+    playing = !playing; last = performance.now(); updatePlay(); dirty = true;
+  }
+  function seek(nt) { t = clamp(nt, 0, DUR); dirty = true; }
+  function jump(dir) {
+    let idx = chapterIdx + dir;
+    if (dir < 0 && t - CHAPTERS[chapterIdx].t > 2) idx = chapterIdx;
+    seek(CHAPTERS[clamp(idx, 0, CHAPTERS.length - 1)].t + 0.01);
+  }
+  playBtn.addEventListener("click", togglePlay);
+  $("prev").addEventListener("click", () => jump(-1));
+  $("next").addEventListener("click", () => jump(1));
+  scrub.addEventListener("input", () => seek(parseFloat(scrub.value)));
+  $("replay").addEventListener("click", () => { seek(0); playing = true; updatePlay(); last = performance.now(); });
+  addEventListener("keydown", (e) => {
+    if (e.target === scrub && (e.key === "ArrowLeft" || e.key === "ArrowRight")) return;
+    if (e.code === "Space" && e.target.tagName !== "BUTTON") { e.preventDefault(); togglePlay(); }
+    else if (e.key === "ArrowRight") seek(t + 5);
+    else if (e.key === "ArrowLeft") seek(t - 5);
+  });
+  addEventListener("resize", resize);
+
+  function loop(now) {
+    const dt = Math.min(0.1, (now - last) / 1000);
+    last = now;
+    if (playing) {
+      t += dt;
+      if (t >= DUR) { t = DUR; playing = false; updatePlay(); }
+      dirty = true;
+      // adaptive resolution: aim for ~30-60 fps
+      frameAvg = frameAvg * 0.9 + dt * 1000 * 0.1;
+      if (++frames > 30) {
+        if (frameAvg > 34 && q > 0.3) { q = Math.max(0.3, q * 0.85); resize(); frames = 0; }
+        else if (frameAvg < 18 && q < 1) { q = Math.min(1, q * 1.12); resize(); frames = 0; }
+      }
+    }
+    if (dirty) { render(); dirty = false; }
+    requestAnimationFrame(loop);
+  }
+
+  updatePlay();
+  resize();
+  requestAnimationFrame((n) => { last = n; loop(n); });
+})();
+</script>
+</body>
+</html>
