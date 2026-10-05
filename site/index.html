@@ -163,6 +163,10 @@ canvas#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: bloc
 .brand { grid-column: 1; grid-row: 1; display: flex; flex-direction: column; gap: 2px; }
 .brand .mark { font-family: var(--f-display); font-size: 22px; letter-spacing: 0.01em; }
 .brand .sub { font-family: var(--f-data); font-size: 11px; color: var(--dim); letter-spacing: 0.06em; text-transform: uppercase; }
+.wm { font-family: var(--f-data); font-size: 11px; color: var(--dim); letter-spacing: 0.04em; margin-top: 4px; }
+.wm a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ember); }
+.wm a:hover, .wm a:focus-visible { color: var(--ember); }
+.intro .wm { margin-top: 2px; }
 
 .readouts { grid-column: 2; grid-row: 1 / 3; align-self: start; display: flex; flex-direction: column; gap: 14px;
   min-width: 210px; padding: 14px 16px; background: var(--glass); border: 1px solid var(--line); border-radius: 4px;
@@ -266,6 +270,7 @@ canvas#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: bloc
   <header class="brand">
     <span class="mark">Into Sagittarius A*</span>
     <span class="sub">Ray-traced live in your browser</span>
+    <span class="wm">Created by <a href="https://www.jpmadrigal.dev" target="_blank" rel="noopener">JP Madrigal</a></span>
   </header>
 
   <aside class="readouts" aria-label="Instruments">
@@ -313,6 +318,7 @@ canvas#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: bloc
     <button class="go" id="begin" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"/></svg><span id="beginLabel">Begin the fall</span></button>
     <button class="quiet" id="beginQuiet" type="button">Watch without sound</button>
     <span class="hint">Best with headphones</span>
+    <span class="wm">Created by <a href="https://www.jpmadrigal.dev" target="_blank" rel="noopener">JP Madrigal</a></span>
   </div>
 </div>
 
@@ -322,7 +328,7 @@ canvas#sky { position: fixed; inset: 0; width: 100%; height: 100%; display: bloc
     <p>Act one follows the real math of a non-spinning black hole. Outside the horizon, every light path is traced through curved space; the glowing disk is simplified and much brighter than Sagittarius A*'s real one, and the view inside the horizon is an interpretation built on the same equations.</p>
     <p>Act two is speculation: three answers physicists have proposed for what replaces the singularity. There are others. String theory's fuzzballs say there's no inside at all, just a tangled surface of strings where the horizon would be. Firewalls say you'd burn up at the horizon. Black holes are one of the few places where gravity and quantum physics have to meet, which is why physicists keep falling into them on paper.</p>
     <button id="replay" type="button">Fall again</button>
-    <p class="made">Made by <a href="https://www.jpmadrigal.dev" target="_blank" rel="noopener">JP Madrigal</a></p>
+    <p class="made">Created by <a href="https://www.jpmadrigal.dev" target="_blank" rel="noopener">JP Madrigal</a></p>
   </div>
 </div>
 
